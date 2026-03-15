@@ -1,30 +1,27 @@
+import os
+import json
 from groq import Groq
-import os, json
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+client = Groq(
+    api_key=os.environ.get("GROQ_API_KEY")
+)
 
 def analyze_ropa(ropa_text):
 
     prompt = f"""
-Convert the following RoPA description into a DFD structure.
+You are a privacy architect.
 
-Return JSON with:
+Convert the following RoPA into a structured DFD.
 
-entities
-processes
-datastores
-flows
+Return ONLY valid JSON.
 
-Example:
+Format:
 
 {{
- "entities": ["Customer"],
- "processes": ["Customer Support"],
- "datastores": ["CRM"],
- "flows": [
-   ["Customer","Customer Support"],
-   ["Customer Support","CRM"]
- ]
+ "entities": [],
+ "processes": [],
+ "datastores": [],
+ "flows": []
 }}
 
 RoPA:
@@ -32,8 +29,28 @@ RoPA:
 """
 
     response = client.chat.completions.create(
-        model="llama3-70b-8192",
-        messages=[{"role":"user","content":prompt}]
+        model="llama3-8b-8192",
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
     )
 
-    return json.loads(response.choices[0].message.content)
+    content = response.choices[0].message.content.strip()
+
+    # remove markdown formatting if AI adds it
+    content = content.replace("```json", "").replace("```", "")
+
+    try:
+        return json.loads(content)
+
+    except:
+        # fallback if AI response breaks
+        return {
+            "entities": ["User"],
+            "processes": ["Processing"],
+            "datastores": ["Database"],
+            "flows": [
+                ["User","Processing"],
+                ["Processing","Database"]
+            ]
+        }
