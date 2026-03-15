@@ -1,13 +1,22 @@
 from vsdx import VisioFile
+import shutil
 
 def export_visio(nodes, edges):
 
-    file = VisioFile()
-    page = file.pages[0]
+    template = "visio_template.vsdx"
+    output = "dfd.vsdx"
 
-    shapes={}
-    x=1
-    y=8
+    # copy template to new file
+    shutil.copy(template, output)
+
+    vis = VisioFile(output)
+
+    page = vis.pages[0]
+
+    shapes = {}
+
+    x = 1
+    y = 8
 
     for n,t in nodes:
 
@@ -18,14 +27,14 @@ def export_visio(nodes, edges):
             text=n
         )
 
-        shapes[n]=shape
-        x+=2
+        shapes[n] = shape
+        x += 2
 
     for s,t in edges:
+
         if s in shapes and t in shapes:
-            page.connect(shapes[s],shapes[t])
+            page.connect(shapes[s], shapes[t])
 
-    path="dfd.vsdx"
-    file.save(path)
+    vis.save()
 
-    return path
+    return output
