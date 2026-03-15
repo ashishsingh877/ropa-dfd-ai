@@ -9,9 +9,11 @@ def analyze_ropa(ropa_text):
     prompt = f"""
 You are a privacy architecture expert.
 
-Convert the following RoPA into a structured DFD model.
+Convert the following RoPA into a DFD structure.
 
-Return ONLY JSON in this format:
+Return ONLY valid JSON.
+
+Format:
 
 {{
  "entities": [],
@@ -25,7 +27,7 @@ RoPA:
 """
 
     response = client.chat.completions.create(
-        model="llama-3.1-70b-versatile",
+        model="llama-3.3-70b-versatile",
         messages=[
             {"role": "user", "content": prompt}
         ],
@@ -34,16 +36,17 @@ RoPA:
 
     content = response.choices[0].message.content.strip()
 
-    content = content.replace("```json", "").replace("```", "")
+    # remove markdown formatting
+    content = content.replace("```json","").replace("```","")
 
     try:
         return json.loads(content)
     except:
         return {
-            "entities": ["User"],
-            "processes": ["Processing"],
-            "datastores": ["Database"],
-            "flows": [
+            "entities":["User"],
+            "processes":["Processing"],
+            "datastores":["Database"],
+            "flows":[
                 ["User","Processing"],
                 ["Processing","Database"]
             ]
