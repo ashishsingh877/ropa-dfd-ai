@@ -2,20 +2,16 @@ import os
 import json
 from groq import Groq
 
-client = Groq(
-    api_key=os.environ.get("GROQ_API_KEY")
-)
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 def analyze_ropa(ropa_text):
 
     prompt = f"""
-You are a privacy architect.
+You are a privacy architecture expert.
 
-Convert the following RoPA into a structured DFD.
+Convert the following RoPA into a structured DFD model.
 
-Return ONLY valid JSON.
-
-Format:
+Return ONLY JSON in this format:
 
 {{
  "entities": [],
@@ -29,22 +25,20 @@ RoPA:
 """
 
     response = client.chat.completions.create(
-        model="llama3-8b-8192",
+        model="llama-3.1-70b-versatile",
         messages=[
             {"role": "user", "content": prompt}
-        ]
+        ],
+        temperature=0
     )
 
     content = response.choices[0].message.content.strip()
 
-    # remove markdown formatting if AI adds it
     content = content.replace("```json", "").replace("```", "")
 
     try:
         return json.loads(content)
-
     except:
-        # fallback if AI response breaks
         return {
             "entities": ["User"],
             "processes": ["Processing"],
