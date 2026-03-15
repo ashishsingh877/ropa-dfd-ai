@@ -6,35 +6,32 @@ def export_visio(nodes, edges):
     template = "visio_template.vsdx"
     output = "dfd.vsdx"
 
-    # copy template to new file
     shutil.copy(template, output)
 
-    vis = VisioFile(output)
+    with VisioFile(output) as vis:
 
-    page = vis.pages[0]
+        page = vis.pages[0]
 
-    shapes = {}
+        shapes = {}
 
-    x = 1
-    y = 8
+        x = 1
+        y = 8
 
-    for n,t in nodes:
+        for n, t in nodes:
 
-        shape = page.add_shape(
-            master="Process",
-            x=x,
-            y=y,
-            text=n
-        )
+            shape = page.add_shape(
+                master="Process",
+                x=x,
+                y=y,
+                text=n
+            )
 
-        shapes[n] = shape
-        x += 2
+            shapes[n] = shape
+            x += 2
 
-    for s,t in edges:
+        for s, t in edges:
 
-        if s in shapes and t in shapes:
-            page.connect(shapes[s], shapes[t])
-
-    vis.save()
+            if s in shapes and t in shapes:
+                page.connect(shapes[s], shapes[t])
 
     return output
