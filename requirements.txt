@@ -1,8 +1,0 @@
-streamlit
-pandas
-groq
-graphviz
-openpyxl
-python-pptx
-vsdx
-xmltodict
